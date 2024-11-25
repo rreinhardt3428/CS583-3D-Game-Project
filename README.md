@@ -1,9 +1,28 @@
 # CS583-3D-Game-Project
 
-# Group Members:
-Enrique Rodriguez,
-Roger Reinhardt,
-Ronessa Mose,
-Tommy Kieu,
-Robert Albon,
-Chaz Gabelman
+### Game Name
+
+Name
+
+### Group Members / Responsibilities
+
+Enrique Rodriguez:
+
+Roger Reinhardt:
+
+Ronessa Mose:
+
+Tommy Kieu:
+
+Robert Albon:
+
+Chaz Gabelman:
+
+### Current Target
+
+Target
+
+### Video Link
+
+Link
+
