@@ -2,25 +2,25 @@
 
 ### Game Name
 
-Name
+Name: Sakura and Steel
 
 ### Group Members / Responsibilities
 
-Enrique Rodriguez:
+Enrique Rodriguez: Gameplay (guns, shooting, powerups)
 
-Roger Reinhardt:
+Roger Reinhardt: Animation and Enemy AI
 
-Ronessa Mose:
+Ronessa Mose: Map/Level Designer
 
-Tommy Kieu:
+Tommy Kieu: Audio and VFX
 
-Robert Albon:
+Robert Albon: Game Mechanics (movement, third person camera)
 
-Chaz Gabelman:
+Chaz Gabelman: Menus, UI, Leaderboard, Kill Feed, Difficulty Tuning for Settings
 
 ### Current Target
 
-Target
+Third Person Shooter, FFA deathmatch, multiple maps, multiple weapons, powerups, training mode
 
 ### Video Link
 
