@@ -35,12 +35,9 @@ public class Gun1Shooting : MonoBehaviour
         else
         {
             Vector3 targetPoint = cameraTransform.position + cameraTransform.forward * 1000f;
-            //shootDirection = cameraTransform.forward;
             shootDirection = (targetPoint - gunPoint.position).normalized;
         }
         
-        //GameObject bullet = Instantiate(bulletPrefab, gunPoint.position, Quaternion.identity); 
-        //bullet.transform.forward = shootDirection;
         Quaternion bulletRotation = Quaternion.LookRotation(shootDirection) * Quaternion.Euler(90, 0, 0);
         GameObject bullet = Instantiate(bulletPrefab, gunPoint.position, bulletRotation);
         Rigidbody bulletRb = bullet.GetComponent<Rigidbody>();
