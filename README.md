@@ -2,7 +2,7 @@
 
 ### Game Name
 
-Name
+Name: Sakura and Steel
 
 ### Group Members / Responsibilities
 
@@ -16,7 +16,7 @@ Tommy Kieu:
 
 Robert Albon:
 
-Chaz Gabelman:
+Chaz Gabelman: Menus, UI, Leaderboard, Difficulty tuning
 
 ### Current Target
 
