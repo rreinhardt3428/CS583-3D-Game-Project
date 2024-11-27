@@ -1,5 +1,10 @@
 {
   "dependencies": {
+<<<<<<< Updated upstream
+=======
+    "com.unity.animation.rigging": "1.2.1",
+    "com.unity.cinemachine": "2.10.3",
+>>>>>>> Stashed changes
     "com.unity.collab-proxy": "2.5.2",
     "com.unity.feature.development": "1.0.1",
     "com.unity.textmeshpro": "3.0.6",
