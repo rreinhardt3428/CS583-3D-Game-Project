@@ -16,11 +16,7 @@ Tommy Kieu: Audio and VFX
 
 Robert Albon: Game Mechanics (movement, third person camera)
 
-<<<<<<< HEAD
-Chaz Gabelman: Menus, UI, Leaderboard, Difficulty tuning
-=======
 Chaz Gabelman: Menus, UI, Leaderboard, Kill Feed, Difficulty Tuning for Settings
->>>>>>> Enrique
 
 ### Current Target
 
