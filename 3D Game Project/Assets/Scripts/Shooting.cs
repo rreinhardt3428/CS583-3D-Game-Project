@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class Gun1Shooting : MonoBehaviour
 {
-    public GameObject bulletPrefab;
-    public Transform gunPoint;
     public Cinemachine.CinemachineVirtualCamera thirdPersonCamera;
-    public float bulletForce = 20f;
     public float fireRate = 0.5f;
+    public float range = 1000f; 
     public int damage = 10; // can be changed for each gun in inspector 
     private float timer = 0f;
+    public ParticleSystem muzzleFlash;
+    public GameObject impactEffect;
 
     void Update()
     {
@@ -23,30 +23,31 @@ public class Gun1Shooting : MonoBehaviour
 
     void Shoot()
     {
+
+        if (muzzleFlash != null)
+        {
+            muzzleFlash.Play();
+        }
         Transform cameraTransform = thirdPersonCamera.VirtualCameraGameObject.transform;
         Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
         RaycastHit hit;
-        Vector3 shootDirection;
 
-        if (Physics.Raycast(ray, out hit))
+        if (Physics.Raycast(ray, out hit, range))
         {
-            shootDirection = (hit.point - gunPoint.position).normalized;
+
+            if (impactEffect != null)
+            {
+                GameObject impact = Instantiate(impactEffect, hit.point, Quaternion.LookRotation(hit.normal));
+                Destroy(impact, .5f);
+            }
+            Debug.Log($"Hit {hit.collider.name} at {hit.point}");
         }
+
         else
         {
-            Vector3 targetPoint = cameraTransform.position + cameraTransform.forward * 1000f;
-            shootDirection = (targetPoint - gunPoint.position).normalized;
+            Debug.Log("Missed");
         }
+
         
-        Quaternion bulletRotation = Quaternion.LookRotation(shootDirection) * Quaternion.Euler(90, 0, 0);
-        GameObject bullet = Instantiate(bulletPrefab, gunPoint.position, bulletRotation);
-        Rigidbody bulletRb = bullet.GetComponent<Rigidbody>();
-
-        if (bulletRb != null)
-        {
-            bulletRb.AddForce(shootDirection * bulletForce, ForceMode.Impulse);
-        }
-
-        Destroy(bullet, 3f);
     }
 }
