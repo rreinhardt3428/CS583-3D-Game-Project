@@ -18,7 +18,6 @@ public class EnemyAI : MonoBehaviour
     private bool isChasing = false; // Whether the enemy is chasing the player
     private CharacterController characterController; // Reference to the CharacterController for movement
     private Vector3 velocity; // Used for gravity and movement
-    private bool isGrounded; // Check if the enemy is grounded
 
     private void Start()
     {
@@ -27,9 +26,6 @@ public class EnemyAI : MonoBehaviour
 
     private void Update()
     {
-        // Check if the enemy is grounded
-        isGrounded = Physics.Raycast(transform.position, Vector3.down, 0.1f);
-
         // Calculate distance to the player
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
@@ -60,53 +56,70 @@ public class EnemyAI : MonoBehaviour
         }
 
         // Apply gravity to the enemy if not grounded
-        if (!isGrounded)
+        if (!characterController.isGrounded)
         {
             velocity.y += Physics.gravity.y * gravityMultiplier * Time.deltaTime; // Apply gravity
         }
         else
         {
             velocity.y = -0.5f; // Small value to ensure it stays grounded
+            transform.rotation = Quaternion.Euler(0f, transform.rotation.eulerAngles.y, 0f);
         }
 
         // Apply the velocity to move the enemy
+        // Apply gravity manually, but normalize the horizontal velocity
+        Vector3 horizontalVelocity = new Vector3(velocity.x, 0, velocity.z);  // Ignore the vertical velocity (Y-axis)
+        horizontalVelocity = horizontalVelocity.normalized * characterController.velocity.magnitude; // Normalize and scale by the current speed
+
+        // Apply the gravity effect to the Y component of the velocity
+        velocity = new Vector3(horizontalVelocity.x, velocity.y, horizontalVelocity.z);
+
+        // Move the character with the normalized horizontal velocity
         characterController.Move(velocity * Time.deltaTime);
     }
 
     private void ChasePlayer(float distanceToPlayer)
     {
-        // Check if the enemy is too close to the player
         if (distanceToPlayer > minDistanceFromPlayer)
         {
-            // Move towards the player at chase speed
             Vector3 direction = (player.position - transform.position).normalized;
             Vector3 movement = direction * chaseSpeed;
             movement.y = velocity.y;  // Maintain current y velocity for gravity
 
             characterController.Move(movement * Time.deltaTime);
-
-            // Optionally, rotate the enemy to face the player
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f);
         }
+
+        // Rotate to face the player
+        RotateToFacePlayer();
     }
 
     private void WalkAround()
     {
         // Implement walking behavior (patrol, random walk, etc.)
         // This is a placeholder, replace it with your actual walking logic
-        Vector3 moveDirection = transform.forward * moveSpeed;
+        Vector3 moveDirection = transform.forward.normalized * moveSpeed;
         moveDirection.y = velocity.y; // Preserve current y velocity for gravity
         characterController.Move(moveDirection * Time.deltaTime);
     }
 
+    public float GetCurrentSpeed()
+    {
+        return characterController.velocity.magnitude;
+    }
+
+    public bool IsFiring()
+    {
+        return isChasing && Vector3.Distance(transform.position, player.position) <= attackRange;
+    }
+
     private void FireAtPlayer()
     {
+        // Rotate to face the player before firing
+        RotateToFacePlayer();
+
         if (fireCooldown <= 0f)
         {
-            // Perform hitscan shooting from enemy's gun
             ShootFromGun();
-
             fireCooldown = fireRate;
         }
         else
@@ -114,6 +127,7 @@ public class EnemyAI : MonoBehaviour
             fireCooldown -= Time.deltaTime;
         }
     }
+
 
     private void ShootFromGun()
     {
@@ -140,6 +154,21 @@ public class EnemyAI : MonoBehaviour
         else
         {
             Debug.Log("Enemy missed");
+        }
+    }
+    private void RotateToFacePlayer()
+    {
+        // Calculate the direction to the player
+        Vector3 directionToPlayer = (player.position - transform.position).normalized;
+
+        // Ignore the Y-axis to keep the enemy upright
+        directionToPlayer.y = 0;
+
+        // Only rotate if there's a meaningful direction
+        if (directionToPlayer.sqrMagnitude > 0.01f)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f); // Smooth rotation
         }
     }
 }

@@ -1,89 +1,84 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 public class AnimationBehavior : MonoBehaviour
 {
     Animator animator;
-    Rigidbody rb;
     float horizontalInput;
     float verticalInput;
-    public AvatarMask avatarMask; // Reference to the Avatar Mask
+    public AvatarMask avatarMask;
 
-    private float defaultAvatarWeight = 0f; // Default weight of Avatar Mask (can be changed)
-    private float firingAvatarWeight = 1.5f; // Higher weight when firing (set as per your requirement)
+    private float defaultAvatarWeight = 0f;
+    private float firingAvatarWeight = 1.5f;
 
-    // Start is called before the first frame update
-    void Start()
+    private PlayerMovement playerMovement;
+
+    private void Start()
     {
         animator = GetComponent<Animator>();
-        rb = GetComponent<Rigidbody>();
+        playerMovement = GetComponent<PlayerMovement>(); // Assuming PlayerMovement is on the same object
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        // Get movement inputs
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
 
-        // Update animator parameters for movement
         animator.SetFloat("Horizontal Input", horizontalInput);
         animator.SetFloat("Vertical Input", verticalInput);
 
-        // Handle sprinting
-        bool isSprinting = Input.GetKey(KeyCode.W) && Input.GetKey(KeyCode.LeftShift);
+        bool isSprinting = (horizontalInput != 0 || verticalInput > 0) && Input.GetKey(KeyCode.LeftShift);
         animator.SetBool("Sprinting", isSprinting);
 
-        // Update jumping and falling logic
         HandleJumpingAndFalling();
 
-        // Handle firing logic
+
         if (Input.GetButton("Fire1"))
         {
-            animator.SetBool("Sprinting", false); // Stop sprinting when firing
-            SetAvatarMaskWeight(firingAvatarWeight); // Increase weight while firing
+            animator.SetBool("Sprinting", false);
+            SetAvatarMaskWeight(firingAvatarWeight);
         }
         else
         {
-            SetAvatarMaskWeight(defaultAvatarWeight); // Reset weight when not firing
+            SetAvatarMaskWeight(defaultAvatarWeight);
         }
     }
 
-    void HandleJumpingAndFalling()
+    private void HandleJumpingAndFalling()
     {
-        float verticalSpeed = rb.velocity.y;
+        // Accessing private velocity and gravity from PlayerMovement using reflection
+        FieldInfo velocityField = typeof(PlayerMovement).GetField("velocity", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        if (Input.GetKeyDown(KeyCode.Space) && Mathf.Abs(verticalSpeed) < 0.1f)
+        if (velocityField != null)
         {
-            // Player initiated a jump
-            animator.SetTrigger("Jumping Up");
-        }
+            Vector3 velocity = (Vector3)velocityField.GetValue(playerMovement);
 
-        if (verticalSpeed > 0.1f)
-        {
-            // Player is moving upward
-            animator.ResetTrigger("Landing");
-        }
-        else if (verticalSpeed < -0.1f)
-        {
-            // Player is falling
-            animator.ResetTrigger("Jumping Up");
-        }
-        else
-        {
-            if (Mathf.Abs(verticalSpeed) < 0.1f && !animator.GetCurrentAnimatorStateInfo(0).IsName("Jumping Up"))
+            bool isGrounded = IsGrounded();
+            animator.SetBool("Grounded", isGrounded);
+
+            // Set the 'isJumping' parameter based on the grounded state and vertical velocity
+            animator.SetBool("Jumping", !isGrounded && velocity.y > 0.1f); // Jump loop animation
+
+            if (isGrounded)
             {
-                animator.SetTrigger("Landing"); // Trigger landing animation
+                // Reset jump/fall states when grounded
+                animator.SetBool("Jumping", false);
+                animator.SetFloat("MoveSpeed", (horizontalInput != 0 || verticalInput != 0) ? (Input.GetKey(KeyCode.LeftShift) ? 2f : 1f) : 0f);
             }
         }
     }
 
-    void SetAvatarMaskWeight(float weight)
+    private bool IsGrounded()
+    {
+        return Physics.Raycast(transform.position, Vector3.down, 0.1f);
+    }
+
+    private void SetAvatarMaskWeight(float weight)
     {
         if (animator != null && avatarMask != null)
         {
-            // Set the weight of the Avatar Mask to make certain parts of the body more active
             animator.SetLayerWeight(1, weight); // Assuming layer 1 is where the Avatar Mask is applied
         }
     }
