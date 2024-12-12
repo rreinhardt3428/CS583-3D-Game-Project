@@ -11,11 +11,18 @@ public class ThirdPersonCamera : MonoBehaviour
     //Grab the position of the camera orientation
     public Transform cameraOrientation;
 
+    private float sensitivity;
+
     void Start()
     {
         //Make the cursor invisible
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        sensitivity = PlayerPrefs.GetFloat("MouseSensitivity", 1.0f);
+
+        horizontalAxis.m_MaxSpeed = 300f * sensitivity; // Adjust the multiplier (300f) if necessary
+        verticalAxis.m_MaxSpeed = 300f * sensitivity;   // Adjust the multiplier (300f) if necessary
     }
 
     void Update()
