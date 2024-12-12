@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
@@ -7,10 +9,14 @@ public class EnemyAI : MonoBehaviour
     public float attackRange = 5f; // Range at which enemy starts firing
     public float moveSpeed = 3f; // Walking speed of the enemy
     public float chaseSpeed = 5f; // Speed when chasing the player
+
     public float fireRate = 1f; // Time between shots
-    public Transform gunTransform; // The transform of the enemy's gun (where the shot is fired from)
     public ParticleSystem muzzleFlash; // Muzzle flash effect
     public GameObject impactEffect; // Impact effect for hits
+    public GameObject bulletEffectPrefab; //Prefab for bullet effect
+    public Transform gunPoint;
+    public float bulletSpeed = 500f;
+
     public float gravityMultiplier = 2f; // Controls how fast gravity affects the enemy
     public float minDistanceFromPlayer = 2f;
 
@@ -137,7 +143,7 @@ public class EnemyAI : MonoBehaviour
         }
 
         // Raycast to check if the shot hits the player
-        Ray ray = new Ray(gunTransform.position, (player.position - gunTransform.position).normalized);
+        Ray ray = new Ray(gunPoint.position, (player.position - gunPoint.position).normalized);
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit, attackRange))
@@ -155,6 +161,41 @@ public class EnemyAI : MonoBehaviour
         {
             Debug.Log("Enemy missed");
         }
+        if (bulletEffectPrefab != null)
+        {
+            GameObject bullet = Instantiate(bulletEffectPrefab, gunPoint.position, Quaternion.identity);
+            Vector3 direction = (player.position - gunPoint.position).normalized;
+            StartCoroutine(MoveBullet(bullet, player.position, direction));
+            // Destroy(bullet, 3f);
+        }
+    }
+    IEnumerator MoveBullet(GameObject bullet, Vector3 targetPoint, Vector3 direction)
+    {
+        float distance = Vector3.Distance(gunPoint.position, targetPoint);
+        float travelTime = distance / bulletSpeed;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < travelTime)
+        {
+            if (bullet == null)
+            {
+                yield break;
+            }
+            bullet.transform.position += direction * bulletSpeed * Time.deltaTime;
+            if (Vector3.Distance(bullet.transform.position, targetPoint) < .1f)
+            {
+                Destroy(bullet);
+                yield break;
+            }
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        if (bullet != null)
+        {
+            Destroy(bullet);
+        }
+
     }
     private void RotateToFacePlayer()
     {
