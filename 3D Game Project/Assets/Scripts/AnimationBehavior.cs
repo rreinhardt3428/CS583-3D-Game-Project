@@ -15,12 +15,14 @@ public class AnimationBehavior : MonoBehaviour
 
     private PlayerMovement playerMovement;
     private bool isReloading = false;
+    private Gun1Shooting shootScript;
 
 
     private void Start()
     {
         animator = GetComponent<Animator>();
         playerMovement = GetComponent<PlayerMovement>(); // Assuming PlayerMovement is on the same object
+        shootScript = GetComponent<Gun1Shooting>();
     }
 
     private void Update()
@@ -41,7 +43,7 @@ public class AnimationBehavior : MonoBehaviour
 
     private void HandleFiringAnimation()
     {
-        if (Input.GetButton("Fire1"))
+        if (Input.GetButton("Fire1") && shootScript.clip > 0)
         {
             animator.SetBool("Sprinting", false);
             animator.SetBool("Shooting", true);

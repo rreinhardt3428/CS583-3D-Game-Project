@@ -21,8 +21,7 @@ public class GunPowerup : MonoBehaviour
         {
             // this specifically searching on the camera because i have the gun attached to it
             // this would need to be edited in the future for the specific model which i can do whenever
-            Cinemachine.CinemachineVirtualCamera camera = FindObjectOfType<Cinemachine.CinemachineVirtualCamera>();
-            Gun1Shooting gun = camera.GetComponentInChildren<Gun1Shooting>();
+            Gun1Shooting gun = other.GetComponent<Gun1Shooting>();
             StartCoroutine(PowerUp(gun));
             powerupRenderer.enabled = false;
             powerupCollider.enabled = false;

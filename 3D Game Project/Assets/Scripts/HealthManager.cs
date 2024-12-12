@@ -2,41 +2,95 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class HealthManager : MonoBehaviour
 {
     public Image healthBar;
     public float healthAmount = 100f;
     public float maxHealth = 100f;
+    public Transform respawnPoint;
+    public float respawnDelay = 2f;
+    private bool isDead = false;
     private Coroutine autoHealCoroutine;
+    private PlayerMovement playerMovement;
+    private Gun1Shooting shootingScript;
+    public DeathCountdown deathCountdown;
 
-    // Update is called once per frame
-    void Update()
+    
+    void Start()
     {
-        // Testing the health function
-        if (Input.GetKeyDown(KeyCode.Return))
-        {
-            TakeDamage(10);
-        }
-        
-        /* // Will have passive regen 
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Heal(5);
-        } */
-        
+        playerMovement = GetComponentInParent<PlayerMovement>();
+        shootingScript = GetComponentInParent<Gun1Shooting>();
     }
 
     public void TakeDamage(float damage)
     {
+        if (isDead) return;
+
         healthAmount -= damage;
         healthBar.fillAmount = healthAmount / 100f;
+
+        if(healthAmount <= 0)
+        {
+            Die();
+        }
 
         if(autoHealCoroutine != null)
         {
             StopCoroutine(autoHealCoroutine);
         }
-        autoHealCoroutine = StartCoroutine(AutoHeal());
+        if (healthAmount > 0)
+        {
+            autoHealCoroutine = StartCoroutine(AutoHeal());
+        }
+    }
+
+    private void Die()
+    {
+        isDead = true;
+
+        if (playerMovement != null)
+        {
+            playerMovement.enabled = false;
+        }
+        shootingScript.enabled = false;
+        
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        foreach (Renderer renderer in renderers)
+        {
+            renderer.enabled = false;
+        }
+
+        deathCountdown.StartCountdown();
+        
+
+        Invoke(nameof(Respawn), respawnDelay);
+    }
+
+    private void Respawn()
+    {
+        healthAmount = maxHealth;
+        isDead = false;
+
+        if (respawnPoint != null)
+        {
+            transform.position = respawnPoint.position;
+        }
+
+        if (healthBar != null)
+        {
+            healthBar.fillAmount = healthAmount / maxHealth;
+        }
+
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        foreach (Renderer renderer in renderers)
+        {
+            renderer.enabled = true;
+        }
+
+        playerMovement.enabled = true;
+        shootingScript.enabled = true;
     }
 
     IEnumerator AutoHeal()

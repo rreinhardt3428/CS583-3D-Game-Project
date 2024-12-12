@@ -51,6 +51,7 @@ public class Gun1Shooting : MonoBehaviour
 
     void Shoot()
     {
+        gunPoint.rotation = thirdPersonCamera.VirtualCameraGameObject.transform.rotation;
         if (!unlimitedAmmo)
         {
             clip--;
@@ -70,12 +71,18 @@ public class Gun1Shooting : MonoBehaviour
         {
             targetPoint = hit.point;
 
+            EnemyHealthManager enemyHealth = hit.collider.GetComponent<EnemyHealthManager>();
+            if (enemyHealth != null)
+            {
+                enemyHealth.TakeDamage(10);
+            }
+
             if (impactEffect != null)
             {
                 GameObject impact = Instantiate(impactEffect, hit.point, Quaternion.LookRotation(hit.normal));
                 Destroy(impact, .5f);
             }
-            //Debug.Log($"Hit {hit.collider.name} at {hit.point}");
+            Debug.Log($"Hit {hit.collider.name} at {hit.point}");
         }
 
         else

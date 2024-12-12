@@ -24,39 +24,36 @@ public class PlayerMovement : MonoBehaviour
    //Placeholder speed
    float baseSpeed;
 
-    void Start()
+
+   void Start()
    {
    //Set the controller variable to the relevant component
    playerController = GetComponent<CharacterController>();
    //Grab the base speed of the player
    baseSpeed = playerSpeed;
-    }
+   }
 
-    void Update()
+   void Update()
    {
    //Grab current inputs from the player
    horizontalInput = Input.GetAxisRaw("Horizontal");
    verticalInput = Input.GetAxisRaw("Vertical");
-
-        //Checks to see if the player is moving forward and pressing LeftShift
-        if (Input.GetKey(KeyCode.W) && Input.GetKey(KeyCode.LeftShift))
+   //Checks to see if the player is moving forward and pressing LeftShift
+   if(Input.GetKey(KeyCode.W) && Input.GetKey(KeyCode.LeftShift))
    {
       //Makes sure the player isnt moving side to side
       if(!Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
       {
             //Changes playerSpeed to sprintSpeed for direction calculation
             playerSpeed = sprintSpeed;
-            }
-            else {
+      } else {
             playerSpeed = baseSpeed;
-            }
-        } else {
-        playerSpeed = baseSpeed;
-
+      }
+   } else {
+      playerSpeed = baseSpeed;
    }
-
    //Sets player direction based on inputs
-   Vector3 playerDirection = transform.forward * verticalInput + transform.right * horizontalInput;
+   Vector3 playerDirection = (transform.forward * verticalInput + transform.right * horizontalInput).normalized;
    //Moves the player based on direction and speed
    playerController.Move(playerDirection * playerSpeed * Time.deltaTime);
    //Sets the sphere position based on character

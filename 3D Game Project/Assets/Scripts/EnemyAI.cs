@@ -148,6 +148,13 @@ public class EnemyAI : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, attackRange))
         {
+
+            HealthManager healthManager = hit.collider.GetComponent<HealthManager>();
+            if (healthManager != null)
+            {
+                healthManager.TakeDamage(10);
+            }
+
             if (impactEffect != null)
             {
                 GameObject impact = Instantiate(impactEffect, hit.point, Quaternion.LookRotation(hit.normal));
