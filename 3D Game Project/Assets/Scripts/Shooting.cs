@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class Gun1Shooting : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class Gun1Shooting : MonoBehaviour
     private float timer = 0f;
     public int maxClip = 30;
     public int clip;
+    public int totalAmmo;
     public float reloadTime = 1f;
     public bool reloading = false;
     public bool unlimitedAmmo = false;
@@ -21,9 +23,13 @@ public class Gun1Shooting : MonoBehaviour
     public ParticleSystem muzzleFlash;
     public GameObject impactEffect;
 
+    public TMP_Text ammoText;
+
     void Start()
     {
+        totalAmmo = 300;
         clip = maxClip;
+        UpdateAmmoUI();
     }
 
     void Update()
@@ -97,6 +103,8 @@ public class Gun1Shooting : MonoBehaviour
             StartCoroutine(MoveBullet(bullet, targetPoint, direction));
             // Destroy(bullet, 3f);
         }
+
+        UpdateAmmoUI();
     }
 
     IEnumerator MoveBullet(GameObject bullet, Vector3 targetPoint, Vector3 direction)
@@ -135,7 +143,13 @@ public class Gun1Shooting : MonoBehaviour
         yield return new WaitForSeconds(reloadTime);
         int ammoToReload = maxClip - clip;
         clip += ammoToReload;
+        totalAmmo -= ammoToReload;
         reloading = false;
         Debug.Log("Reloaded.");
+        UpdateAmmoUI();
+    }
+
+    void UpdateAmmoUI() {
+        ammoText.text = clip + "/" + totalAmmo;
     }
 }
