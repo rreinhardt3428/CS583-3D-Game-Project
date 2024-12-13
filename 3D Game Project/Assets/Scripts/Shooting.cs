@@ -5,6 +5,11 @@ using TMPro;
 
 public class Gun1Shooting : MonoBehaviour
 {
+    public float Cliplength = 1f;
+    public AudioClip ShootSound;
+    public AudioClip ReloadSound;  // Added reload sound variable
+    private AudioSource audioSource;
+
     public Cinemachine.CinemachineVirtualCamera thirdPersonCamera;
     public GameObject bulletEffectPrefab;
     public Transform gunPoint;
@@ -27,6 +32,17 @@ public class Gun1Shooting : MonoBehaviour
 
     void Start()
     {
+        clip = maxClip;
+
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            Debug.LogWarning("No AudioSource found, adding one.");
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+
+        // Set default sound clips
+        audioSource.playOnAwake = false;
         totalAmmo = 300;
         clip = maxClip;
         UpdateAmmoUI();
@@ -103,6 +119,11 @@ public class Gun1Shooting : MonoBehaviour
             StartCoroutine(MoveBullet(bullet, targetPoint, direction));
             // Destroy(bullet, 3f);
         }
+        if (audioSource != null && ShootSound != null)
+        {
+            Debug.Log("Playing shoot sound.");
+            audioSource.PlayOneShot(ShootSound); // Play the sound
+        }
 
         UpdateAmmoUI();
     }
@@ -140,6 +161,12 @@ public class Gun1Shooting : MonoBehaviour
     {
         reloading = true;
         Debug.Log("Reloading...");
+
+        if (audioSource != null && ReloadSound != null)
+        {
+            audioSource.PlayOneShot(ReloadSound);
+        }
+
         yield return new WaitForSeconds(reloadTime);
         int ammoToReload = maxClip - clip;
         clip += ammoToReload;

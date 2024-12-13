@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
 {
+    public float Cliplength = 1f;
+    public AudioClip ShootSound;
+    public AudioClip ReloadSound;  // Added reload sound variable
+    private AudioSource audioSource;
+
     public Transform player; // Player transform reference
     public float detectionRange = 10f; // Range at which enemy starts chasing the player
     public float attackRange = 5f; // Range at which enemy starts firing
@@ -28,6 +33,16 @@ public class EnemyAI : MonoBehaviour
     private void Start()
     {
         characterController = GetComponent<CharacterController>(); // Get the CharacterController component
+
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            Debug.LogWarning("No AudioSource found, adding one.");
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+
+        // Set default sound clips
+        audioSource.playOnAwake = false;
     }
 
     private void Update()
@@ -174,6 +189,11 @@ public class EnemyAI : MonoBehaviour
             Vector3 direction = (player.position - gunPoint.position).normalized;
             StartCoroutine(MoveBullet(bullet, player.position, direction));
             // Destroy(bullet, 3f);
+        }
+        if (audioSource != null && ShootSound != null)
+        {
+            Debug.Log("Playing shoot sound.");
+            audioSource.PlayOneShot(ShootSound); // Play the sound
         }
     }
     IEnumerator MoveBullet(GameObject bullet, Vector3 targetPoint, Vector3 direction)

@@ -24,14 +24,28 @@ public class PlayerMovement : MonoBehaviour
    //Placeholder speed
    float baseSpeed;
 
+    // Audio variables for walking sound
+    public AudioClip walkingSound;   // Walking sound AudioClip
+    private AudioSource audioSource;  // AudioSource to play the sound
+    private bool isWalking = false;  // Track if the player is walking
 
-   void Start()
+
+    void Start()
    {
    //Set the controller variable to the relevant component
    playerController = GetComponent<CharacterController>();
    //Grab the base speed of the player
    baseSpeed = playerSpeed;
-   }
+
+        // Get the AudioSource component
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();  // Add AudioSource if not found
+        }
+
+        audioSource.playOnAwake = false;  // Don't play sound on start
+    }
 
    void Update()
    {
@@ -77,7 +91,44 @@ public class PlayerMovement : MonoBehaviour
    }
    //Moves player towards the floor if in the air
    playerController.Move(velocity * Time.deltaTime);
-   }
+        // Check if the player is walking or idle
+        if (horizontalInput != 0 || verticalInput != 0) // Player is moving
+        {
+            if (!isWalking)
+            {
+                isWalking = true;
+                PlayWalkingSound();  // Start playing walking sound
+            }
+        }
+        else // Player is idle
+        {
+            if (isWalking)
+            {
+                isWalking = false;
+                StopWalkingSound();  // Stop walking sound
+            }
+        }
+        // Function to play the walking sound with adjusted pitch
+        void PlayWalkingSound()
+        {
+            if (walkingSound != null && !audioSource.isPlaying)
+            {
+                audioSource.clip = walkingSound;
+                audioSource.loop = true; // Loop the walking sound
+                audioSource.pitch = 0.8f; // Example: reduce the speed (lengthen the sound)
+                audioSource.Play();
+            }
+        }
+
+        // Function to stop the walking sound
+        void StopWalkingSound()
+        {
+            if (audioSource.isPlaying)
+            {
+                audioSource.Stop();
+            }
+        }
+    }
 
    
 }
